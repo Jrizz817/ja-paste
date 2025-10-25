@@ -16,6 +16,7 @@
     button{background:linear-gradient(90deg,#10B981,#3B82F6);border:none;color:#fff;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;}
     button:hover{opacity:0.9;}
     .raw{display:none;background:#000;color:#00ffcc;margin-top:15px;padding:15px;border-radius:8px;white-space:pre-wrap;}
+    .paste-id{margin-top:10px;padding:10px;background:rgba(0,255,204,0.1);border:1px solid #00ffcc;border-radius:6px;font-family:monospace;word-break:break-all;}
     footer{margin:30px 0;color:#666;}
   </style>
 </head>
@@ -29,6 +30,7 @@
       <button id="view">Ver Raw</button>
     </div>
     <div id="raw" class="raw"></div>
+    <div id="pasteId" class="paste-id"></div>
   </div>
   <footer>Hospedado com persistência por <b>J/A</b></footer>
 
@@ -38,6 +40,7 @@
     const viewBtn = document.getElementById("view");
     const rawDiv = document.getElementById("raw");
     const textarea = document.getElementById("text");
+    const pasteIdDiv = document.getElementById("pasteId");
 
     async function savePaste() {
       const text = textarea.value.trim();
@@ -49,8 +52,8 @@
       });
       const data = await res.json();
       if (data.id) {
-        alert("Salvo com ID: " + data.id);
-        window.open("/raw/" + data.id, "_blank"); // abre raw direto
+        pasteIdDiv.innerHTML = `ID do paste: <b>${data.id}</b><br>Raw: <a href="/raw/${data.id}" target="_blank">/raw/${data.id}</a>`;
+        window.open("/raw/" + data.id, "_blank");
       } else {
         alert("Erro ao salvar");
       }
@@ -63,6 +66,7 @@
       const data = await res.json();
       if (data.content) {
         textarea.value = data.content;
+        pasteIdDiv.innerHTML = `ID do paste: <b>${id}</b><br>Raw: <a href="/raw/${id}" target="_blank">/raw/${id}</a>`;
         alert("Carregado!");
       } else alert("Não encontrado.");
     }
