@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>J/A Paste</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+    body{background:linear-gradient(135deg,#0a0a0a,#181818);color:#fff;display:flex;flex-direction:column;align-items:center;min-height:100vh;}
+    h1{font-size:2.3rem;margin-top:40px;background:linear-gradient(90deg,#6EE7B7,#3B82F6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:glow 4s infinite;}
+    @keyframes glow{0%,100%{text-shadow:0 0 5px #6EE7B7,0 0 20px #3B82F6;}50%{text-shadow:0 0 20px #6EE7B7,0 0 40px #3B82F6;}}
+    .box{margin-top:20px;width:90%;max-width:800px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:20px;backdrop-filter:blur(10px);}
+    textarea{width:100%;height:300px;background:#0d0d0d;color:#00ffcc;border:none;outline:none;padding:15px;font-family:monospace;font-size:1rem;border-radius:8px;}
+    .actions{display:flex;justify-content:space-between;margin-top:15px;}
+    button{background:linear-gradient(90deg,#10B981,#3B82F6);border:none;color:#fff;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;}
+    button:hover{opacity:0.9;}
+    .raw{display:none;background:#000;color:#00ffcc;margin-top:15px;padding:15px;border-radius:8px;white-space:pre-wrap;}
+    footer{margin:30px 0;color:#666;}
+  </style>
+</head>
+<body>
+  <h1>J/A Paste</h1>
+  <div class="box">
+    <textarea id="text" placeholder="Cole seu texto aqui..."></textarea>
+    <div class="actions">
+      <button id="save">Salvar</button>
+      <button id="load">Carregar</button>
+      <button id="view">Ver Raw</button>
+    </div>
+    <div id="raw" class="raw"></div>
+  </div>
+  <footer>Hospedado com persistência por <b>J/A</b></footer>
+
+  <script>
+    const saveBtn = document.getElementById("save");
+    const loadBtn = document.getElementById("load");
+    const viewBtn = document.getElementById("view");
+    const rawDiv = document.getElementById("raw");
+    const textarea = document.getElementById("text");
+
+    async function savePaste() {
+      const text = textarea.value.trim();
+      if (!text) return alert("Texto vazio.");
+      const res = await fetch("/api/paste", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: text })
+      });
+      const data = await res.json();
+      if (data.id) {
+        alert("Salvo com ID: " + data.id);
+        window.open("/raw/" + data.id, "_blank"); // abre raw direto
+      } else {
+        alert("Erro ao salvar");
+      }
+    }
+
+    async function loadPaste() {
+      const id = prompt("Digite o ID do paste:");
+      if (!id) return;
+      const res = await fetch("/api/paste?id=" + id);
+      const data = await res.json();
+      if (data.content) {
+        textarea.value = data.content;
+        alert("Carregado!");
+      } else alert("Não encontrado.");
+    }
+
+    viewBtn.onclick = () => {
+      rawDiv.style.display = rawDiv.style.display === "block" ? "none" : "block";
+      rawDiv.textContent = textarea.value || "[vazio]";
+    };
+    saveBtn.onclick = savePaste;
+    loadBtn.onclick = loadPaste;
+  </script>
+</body>
+</html>
