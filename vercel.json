@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "api/paste.js", "use": "@vercel/node" },
+    { "src": "api/raw.js", "use": "@vercel/node" },
+    { "src": "index.html", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/api/paste", "dest": "/api/paste.js" },
+    { "src": "/raw/(?<id>[A-Za-z0-9_-]+)$", "dest": "/api/raw.js" },
+    { "src": "/api/(.*)", "dest": "/api/paste.js" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}
